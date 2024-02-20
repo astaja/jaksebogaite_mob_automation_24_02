@@ -3,21 +3,16 @@ import Screens.SignUpScreen;
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.*;
-import org.testng.annotations.Test;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
+import java.util.Map;
 
-public class LoginTests {
-
+public class ProjectTests {
     private AndroidDriver driver;
-    Duration waitDuration = Duration.ofSeconds(5);
     public LoginScreen loginScreen;
     public SignUpScreen signUpScreen;
 
@@ -29,6 +24,8 @@ public class LoginTests {
         desiredCapabilities.setCapability("appium:appPackage","com.wdiodemoapp");
         desiredCapabilities.setCapability("appium:appActivity","com.wdiodemoapp.SplashActivity");
 
+        desiredCapabilities.setCapability("appium:noReset",true); //app is not starting every time
+
         URL localUrl = new URL("http://127.0.0.1:4723/");
         driver = new AndroidDriver(localUrl, desiredCapabilities);
         loginScreen = new LoginScreen(driver);
@@ -37,12 +34,23 @@ public class LoginTests {
 
     @BeforeMethod // executed before tests
     public void beforeMethodSetup(){
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(4));
-        driver.findElement(By.xpath("//android.widget.TextView[@text=\"Login\"]")).click();
+//        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(4));
+//        driver.findElement(By.xpath("//android.widget.TextView[@text=\"Login\"]")).click();
+        driver.activateApp("com.wdiodemoapp");
+        driver.executeScript("mobile: activateApp", Map.ofEntries(
+                Map.entry("appId", "com.swaglabsmobileapp")
+        ));
+    }
+    @DataProvider(name = "valid-user-data")
+    public static Object[][] getUserData(){
+        return new String[][]{
+                {"email", "password"};
+                {"email", "password"}
+        };
     }
 
-    @Test  // code to test
-    public void firstTest() throws InterruptedException {
+    @Test(dataProvider = "valid-user-data")
+    public void firstTest(String email, String password) throws InterruptedException {
 //        Thread.sleep(5000);
         driver.findElement(By.xpath("(//android.widget.TextView[@text=\"Login\"])[1]")).click();
         driver.findElement(new AppiumBy.ByAccessibilityId("input-email")).sendKeys("bad email address");
@@ -86,18 +94,18 @@ public class LoginTests {
         driver.findElement(new AppiumBy.ByAccessibilityId("button-SIGN UP")).click();
     }
 
-    @Test
-    public void validateInputField(){
-    }
-    @Test
-    public void validateDropdown(){
-    }
-    @Test
-    public void swipe(){
-    }
-    @Test
-    public void dragNdrop(){
-    }
+//    @Test
+//    public void validateInputField(){
+//    }
+//    @Test
+//    public void validateDropdown(){
+//    }
+//    @Test
+//    public void swipe(){
+//    }
+//    @Test
+//    public void dragDrop(){
+//    }
 
     @AfterMethod
     public void afterMethodSetup(){
@@ -106,8 +114,8 @@ public class LoginTests {
     @AfterClass
     public void afterClassSetup(){
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(4));
+        driver.terminateApp()
 //        driver.quit();
     }
-
 
 }
